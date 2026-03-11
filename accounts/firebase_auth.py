@@ -5,12 +5,16 @@ from .models import User
 import os
 import json
 
+# Safe Firebase initialization
 if not firebase_admin._apps:
-    firebase_key = os.getenv("FIREBASE_KEY")
+    firebase_key = os.environ.get("FIREBASE_KEY")
 
     if firebase_key:
-        cred_dict = json.loads(firebase_key)
-        cred = credentials.Certificate(cred_dict)
-        firebase_admin.initialize_app(cred)
+        try:
+            cred_dict = json.loads(firebase_key)
+            cred = credentials.Certificate(cred_dict)
+            firebase_admin.initialize_app(cred)
+        except Exception as e:
+            print("Firebase initialization failed:", e)
     else:
-        print("WARNING: FIREBASE_KEY not set")
+        print("WARNING: FIREBASE_KEY environment variable not set")
