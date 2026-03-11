@@ -3,7 +3,11 @@ import os
 from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-import os
+
+# -----------------------------------------
+# FIREBASE KEY PATH
+# -----------------------------------------
+
 FIREBASE_KEY_PATH = os.path.join(BASE_DIR, "firebase", "serviceAccountKey.json")
 
 
@@ -12,8 +16,15 @@ FIREBASE_KEY_PATH = os.path.join(BASE_DIR, "firebase", "serviceAccountKey.json")
 # -----------------------------------------
 
 SECRET_KEY = "django-insecure-change-this-key"
-DEBUG = True
-ALLOWED_HOSTS = ["*"]
+
+DEBUG = False
+
+ALLOWED_HOSTS = [
+    "virtue-tech-backend.up.railway.app",
+    "virtue-tech-backend-production.up.railway.app",
+    "localhost",
+    "127.0.0.1",
+]
 
 
 # -----------------------------------------
@@ -21,7 +32,6 @@ ALLOWED_HOSTS = ["*"]
 # -----------------------------------------
 
 INSTALLED_APPS = [
-    "accounts",
 
     # Django default
     "django.contrib.admin",
@@ -30,40 +40,22 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
+    # Third party
+    "corsheaders",
     "rest_framework",
     "rest_framework_simplejwt",
-    # Third-party
-    
-    "corsheaders",
 
-    #  other apps
+    # Project apps
+    "accounts",
     "courses",
     "bookings",
     "payments",
     "chat",
     "notifications",
     "api",
-   
 ]
-REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "accounts.firebase_auth.FirebaseAuthentication",
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ],
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
-    ],
-    "DEFAULT_RENDERER_CLASSES": [
-        "rest_framework.renderers.JSONRenderer",
-    ],
-}
 
-from datetime import timedelta
-
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-}
 
 # -----------------------------------------
 # MIDDLEWARE
@@ -72,6 +64,7 @@ SIMPLE_JWT = {
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -81,7 +74,12 @@ MIDDLEWARE = [
 ]
 
 
+# -----------------------------------------
+# URLS
+# -----------------------------------------
+
 ROOT_URLCONF = "virtue_tech_backend.urls"
+
 
 # -----------------------------------------
 # TEMPLATES
@@ -91,7 +89,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [],
-        "APP_DIRS": False,   # IMPORTANT FIX
+        "APP_DIRS": False,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
@@ -103,12 +101,28 @@ TEMPLATES = [
 ]
 
 
+# -----------------------------------------
+# WSGI
+# -----------------------------------------
+
 WSGI_APPLICATION = "virtue_tech_backend.wsgi.application"
 
 
+# -----------------------------------------
+# DATABASE
+# -----------------------------------------
+# (You are using Firebase so no SQL database needed)
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}
+
 
 # -----------------------------------------
-# AUTH (Custom User)
+# CUSTOM USER MODEL
 # -----------------------------------------
 
 AUTH_USER_MODEL = "accounts.User"
@@ -132,36 +146,65 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Asia/Karachi"
+
 USE_I18N = True
 USE_TZ = True
 
 
 # -----------------------------------------
-# STATIC & MEDIA
+# STATIC FILES
 # -----------------------------------------
 
 STATIC_URL = "/static/"
+
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+
+# -----------------------------------------
+# MEDIA FILES
+# -----------------------------------------
+
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 
 # -----------------------------------------
-# CORS (for React frontend)
+# CORS SETTINGS (React Frontend)
 # -----------------------------------------
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "https://virtue-tech-frontend.vercel.app",
+]
 
-
+CORS_ALLOW_CREDENTIALS = True
 
 
 # -----------------------------------------
-# JWT CONFIG
+# DJANGO REST FRAMEWORK
+# -----------------------------------------
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "accounts.firebase_auth.FirebaseAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+    ],
+}
+
+
+# -----------------------------------------
+# JWT SETTINGS
 # -----------------------------------------
 
 SIMPLE_JWT = {
@@ -169,3 +212,10 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
+
+
+# -----------------------------------------
+# DEFAULT PRIMARY KEY
+# -----------------------------------------
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
