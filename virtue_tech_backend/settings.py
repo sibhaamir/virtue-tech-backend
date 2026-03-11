@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     "payments",
     "chat",
     "notifications",
-     "rest_framework",
     "api",
    
 ]
