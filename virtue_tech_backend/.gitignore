@@ -16,3 +16,6 @@ dist/
 
 # Environment
 .env
+# Python cache files
+__pycache__/
+*.pyc
